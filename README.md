@@ -5,3 +5,5 @@ Steps to run project :
 
 1. npm start
 2. http://localhost:3001/
+
+![Screenshot](homepage.JPG)
