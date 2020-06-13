@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <h1><%= title %></h1>
+  <p>You have successfully completed the OAuth 2 authentication process.</p>
+  <div id="video_actions" style="display: none;">
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" style="float:right;">Change
+      Status</button>
+
+
+  </div>
+  <!-- Modal -->
+  <div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" onclick="resetValues();">&times;</button>
+          <h4 class="modal-title">Change Status to: </h4>
+        </div>
+        <div class="modal-body">
+          <form action="#" id="action_form">
+            <div class="radio">
+              <label><input type="radio" name="videostatus" value='public'>Public</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="videostatus" value='private'>Private</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-default">Submit</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal" onclick="resetValues();">Close</button>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Select</th>
+        <th scope="col">Title</th>
+        <th scope="col">Youtube Id</th>
+        <th scope="col">Description</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(allVideos){ %>
+      <% var i=0;%>
+      <%for (var vdetail in allVideos.items){%>
+      <% i++;%>
+      <tr>
+        <th scope="row"><%=i%></th>
+        <td><input type="checkbox" name="video_ids[]" value="<%=allVideos.items[vdetail]['contentDetails']['videoId']%>"
+            data-status="<%=allVideos.items[vdetail]['status']['privacyStatus']%>"
+            onclick="enableStatusChangeOption(this)"></td>
+        <td><%=allVideos.items[vdetail]['snippet']['title']%></td>
+        <td><%=allVideos.items[vdetail]['contentDetails']['videoId']%></td>
+        <td><%=allVideos.items[vdetail]['snippet']['description']%></td>
+        <td><%=allVideos.items[vdetail]['status']['privacyStatus']%></td>
+      </tr>
+      <%}%>
+         <%}%>
+    </tbody>
+  </table>
+  <script>
+    var selectedRowdetails = [];
+    $(document).ready(function () {
+      $("#action_form").submit(function (event) {
+        // Prevent the form from submitting via the browser.
+        event.preventDefault();
+        ajaxPost();
+      });
+
+      function ajaxPost() {
+        var selected_ids = [];
+        if (!$('input[name="videostatus"]:checked').val()) {
+          alert('New status value required');
+          return false;
+        } else {
+          var new_status = $('input[name="videostatus"]:checked').val()
+        }
+        if ($("input[name='video_ids[]']:checked").length == 0) {
+          alert('please select atleast one records');
+          return false;
+        } else {
+          $.each($("input[name='video_ids[]']:checked"), function () {
+            selected_ids.push($(this).val());
+          });
+        }
+        var temp = []
+        selected_ids.forEach(function (value, index, object) {
+          if (selectedRowdetails[value] != new_status) {
+            temp.push(value);
+          }
+        })
+
+        if (temp.length == 0) {
+          alert('Selected records have already ' + new_status + ' status');
+          return false;
+        }
+        var formData = {
+          new_status: $('input[name="videostatus"]:checked').val(),
+          selected_videos: temp.toString()
+        }
+
+        var parser = document.createElement('a');
+        parser.href = window.location;
+
+        $.ajax({
+          type: "POST",
+          contentType: "application/json",
+          url: parser.protocol + "//" + parser.host + "/playlistitem",
+          data: JSON.stringify(formData),
+          dataType: 'json',
+          success: function (response) {
+            alert(response.message);
+            window.location.href = parser.protocol + "//" + parser.host + "/welcome";
+          },
+          error: function (e) {
+            alert("Error!")
+            console.log("ERROR: ", e);
+          }
+        });
+      }
+    })
+
+    function resetValues() {
+      selectedRowdetails = [];
+      $("input[name='videostatus']").prop("checked", false);
+      $.each($("input[name='video_ids[]']:checked"), function () {
+        $(this).prop("checked", false);
+      });
+    }
+    function enableStatusChangeOption(event) {
+      if ($(event).prop("checked") == true) {
+        selectedRowdetails[$(event).val()] = $(event).attr('data-status')
+      } else {
+        delete selectedRowdetails[$(event).val()];
+      }
+      if ($("input[name='video_ids[]']:checked").length > 0) {
+        $('#video_actions').show();
+      } else {
+        $('#video_actions').hide();
+      }
+    }
+  </script>
+</body>
+
+</html>

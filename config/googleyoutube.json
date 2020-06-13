@@ -1,0 +1,9 @@
+{
+  "CLIENT_ID"      : "client id",
+  "CLIENT_SECRET"  : "client secret",
+  "REDIRECT_URL"   : "http://localhost:3001",
+  "scope"          : ["https://www.googleapis.com/auth/youtube"],
+  "token_dir_path" : "./youtube/",
+  "token_file"     : "token.txt",
+  "video_dir_path" : "./videos/"
+}
