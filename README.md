@@ -11,7 +11,7 @@ Steps to run project :
 1. npm start
 2. http://localhost:3001/
 
-![Screenshot](homepage.JPG)
+![Screenshot](home.JPG)
 ![Screenshot](youtube_list.JPG)
 ![Screenshot](change_status.JPG)
 ![Screenshot](success.JPG)
